@@ -26,7 +26,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: PointCloud2
+    SyncSource: ""
 Preferences:
   PromptSaveOnExit: true
 Toolbars:
@@ -51,6 +51,38 @@ Visualization Manager:
       Plane: XY
       Plane Cell Count: 10
       Reference Frame: <Fixed Frame>
+      Value: true
+    - Class: rviz/TF
+      Enabled: true
+      Frame Timeout: 15
+      Frames:
+        All Enabled: true
+        GPS_back_link:
+          Value: true
+        GPS_front_link:
+          Value: true
+        base_link:
+          Value: true
+        front_laser_link:
+          Value: true
+        imu_link:
+          Value: true
+      Marker Scale: 1
+      Name: TF
+      Show Arrows: true
+      Show Axes: true
+      Show Names: true
+      Tree:
+        base_link:
+          GPS_back_link:
+            {}
+          GPS_front_link:
+            {}
+          front_laser_link:
+            {}
+          imu_link:
+            {}
+      Update Interval: 0
       Value: true
     - Alpha: 1
       Autocompute Intensity Bounds: true
@@ -112,7 +144,7 @@ Visualization Manager:
   Global Options:
     Background Color: 48; 48; 48
     Default Light: true
-    Fixed Frame: left_velodyne
+    Fixed Frame: base_link
     Frame Rate: 30
   Name: root
   Tools:
@@ -135,26 +167,26 @@ Visualization Manager:
   Value: true
   Views:
     Current:
-      Class: rviz/Orbit
-      Distance: 49.759159088134766
+      Class: rviz/XYOrbit
+      Distance: 2.1413605213165283
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -0.6005589365959167
-        Y: 1.7052518129348755
-        Z: 5.289216995239258
+        X: 0.11234211921691895
+        Y: 0.2475755214691162
+        Z: 3.5762786865234375e-7
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: -0.09460131078958511
-      Target Frame: <Fixed Frame>
-      Value: Orbit (rviz)
-      Yaw: 3.6403791904449463
+      Pitch: 0.930398166179657
+      Target Frame: base_link
+      Value: XYOrbit (rviz)
+      Yaw: 1.6053974628448486
     Saved: ~
 Window Geometry:
   Displays:

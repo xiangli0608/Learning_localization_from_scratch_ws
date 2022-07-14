@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package>
+  <name>kaist_description</name>
+  <version>0.0.1</version>
+  <description>
+    URDF description for the kaist
+  </description>
+
+  <maintainer email="xiangli9468@163.com">xiangli</maintainer>
+
+  
+  <license>TODO</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <run_depend>urdf</run_depend>
+
+ 
+  <export>
+  </export>
+</package>

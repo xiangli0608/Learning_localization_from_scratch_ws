@@ -1,0 +1,78 @@
+<robot name="kaist">
+  <material name="blue">
+    <color rgba="0.0 0.5 1.0 1"/>
+  </material>
+  <material name="orange">
+    <color rgba="1.0 0.5 0.2 1"/>
+  </material>
+  <material name="gray">
+    <color rgba="0.2 0.2 0.2 1"/>
+  </material>
+
+  <!-- base_link -->
+  <link name="base_link"/>
+
+  <link name="left_velodyne">
+      <visual>
+          <origin xyz="0 0 0"/>
+          <geometry>
+              <cylinder length="0.1" radius="0.1"/>
+          </geometry>
+          <material name="gray"/>
+      </visual>
+  </link>
+  <joint name="cloud1_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="left_velodyne"/>
+    <origin rpy="0.031 0.783 2.384" xyz="-0.438343 0.395882 1.94095"/>
+  </joint>
+
+  <link name="right_velodyne">
+      <visual>
+          <origin xyz="0 0 0"/>
+          <geometry>
+              <cylinder length="0.1" radius="0.1"/>
+          </geometry>
+          <material name="gray"/>
+      </visual>
+  </link>
+  <joint name="cloud2_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="right_velodyne"/>
+    <origin rpy="-0.008 0.775 -2.371" xyz="-0.436669 -0.411346 1.94785"/>
+  </joint>
+
+  <!-- imu -->
+  <link name="imu">
+      <visual>
+          <origin xyz="0 0 0"/>
+          <geometry>
+              <cylinder length="0.1" radius="0.1"/>
+          </geometry>
+          <material name="gray"/>
+      </visual>
+  </link>
+  <joint name="imu_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="imu"/>
+    <origin rpy="0 0 0" xyz="-0.07 0 1.7"/>
+  </joint>
+
+  <!-- gps -->
+  <link name="gps">
+      <visual>
+          <origin xyz="0 0 0"/>
+          <geometry>
+              <cylinder length="0.1" radius="0.1"/>
+          </geometry>
+          <material name="gray"/>
+      </visual>
+  </link>
+  <joint name="gps_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="gps"/>
+    <origin rpy="0 0 0" xyz="-0.32 0 1.7"/>
+  </joint>
+
+</robot>
+
