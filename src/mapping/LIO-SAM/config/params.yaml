@@ -1,10 +1,13 @@
 lio_sam:
 
   # Topics
-  pointCloudTopic: "points_raw"               # Point cloud data
-  imuTopic: "imu_raw"                         # IMU data
+  # pointCloudTopic: "/ns1/velodyne_points"               # Point cloud data
+  pointCloudLeftTopic: "/ns2/velodyne_points"
+  pointCloudRightTopic: "/ns1/velodyne_points"
+  imuTopic: "/imu/data_raw"                         # IMU data
   odomTopic: "odometry/imu"                   # IMU pre-preintegration odometry, same frequency as IMU
-  gpsTopic: "odometry/gpsz"                   # GPS odometry topic from navsat, see module_navsat.launch file
+  gpsTopic: "/gps_odom"                   # GPS odometry topic from navsat, see module_navsat.launch file
+  gpsFixTopic: "/vrs_gps_data"
 
   # Frames
   lidarFrame: "base_link"
@@ -13,10 +16,11 @@ lio_sam:
   mapFrame: "map"
 
   # GPS Settings
+  useGPS: false
   useImuHeadingInitialization: true           # if using GPS data, set to "true"
   useGpsElevation: false                      # if GPS elevation is bad, set to "false"
-  gpsCovThreshold: 2.0                        # m^2, threshold for using GPS data
-  poseCovThreshold: 25.0                      # m^2, threshold for using GPS data
+  gpsCovThreshold: 0.5                        # m^2, threshold for using GPS data
+  poseCovThreshold: 15.0                      # m^2, threshold for using GPS data
   
   # Export settings
   savePCD: false                              # https://github.com/TixiaoShan/LIO-SAM/issues/3
@@ -24,34 +28,63 @@ lio_sam:
 
   # Sensor Settings
   sensor: velodyne                            # lidar sensor type, 'velodyne' or 'ouster' or 'livox'
-  N_SCAN: 16                                  # number of lidar channel (i.e., Velodyne/Ouster: 16, 32, 64, 128, Livox Horizon: 6)
+  N_SCAN: 32                                  # number of lidar channel (i.e., Velodyne/Ouster: 16, 32, 64, 128, Livox Horizon: 6)
   Horizon_SCAN: 1800                          # lidar horizontal resolution (Velodyne:1800, Ouster:512,1024,2048, Livox Horizon: 4000)
   downsampleRate: 1                           # default: 1. Downsample your data if too many points. i.e., 16 = 64 / 4, 16 = 16 / 1
   lidarMinRange: 1.0                          # default: 1.0, minimum lidar range to be used
-  lidarMaxRange: 1000.0                       # default: 1000.0, maximum lidar range to be used
+  lidarMaxRange: 100.0                       # default: 1000.0, maximum lidar range to be used
 
   # IMU Settings
-  imuAccNoise: 3.9939570888238808e-03
-  imuGyrNoise: 1.5636343949698187e-03
-  imuAccBiasN: 6.4356659353532566e-05
-  imuGyrBiasN: 3.5640318696367613e-05
-  imuGravity: 9.80511
+  imuGyrBiasN: 4.848136811e-06
+  imuGyrNoise: 1.745329252e-05
+  imuAccBiasN: 1.46991e-05
+  imuAccNoise: 5.87964e-05
+  imuGravity: 9.7994
   imuRPYWeight: 0.01
 
+  # imuAccNoise: 0.01
+  # imuGyrNoise: 0.01
+  # imuAccBiasN: 1e-04
+  # imuGyrBiasN: 1e-04
+  # imuGravity: 9.80665
+  # imuRPYWeight: 0.01
+
   # Extrinsics: T_lb (lidar -> imu)
-  extrinsicTrans: [0.0, 0.0, 0.0]
-  extrinsicRot: [-1, 0, 0,
-                  0, 1, 0,
-                  0, 0, -1]
-  extrinsicRPY: [0, -1, 0,
-                 1, 0, 0,
-                 0, 0, 1]
+  # extrinsicTrans: [0.0, 0.0, 0.0]
   # extrinsicRot: [1, 0, 0,
   #                 0, 1, 0,
   #                 0, 0, 1]
   # extrinsicRPY: [1, 0, 0,
   #                 0, 1, 0,
   #                 0, 0, 1]
+
+
+  
+
+  right_lidar_to_imu:  [-0.514521,   0.701075,  -0.493723,  -0.263596,
+                        -0.492472,  -0.712956,  -0.499164,  -0.373928,
+                        -0.701954,  -0.0136853,   0.712091,    0.24377,
+                          0,          0,          0,                1]
+
+
+  left_lidar_to_imu: [ -0.516377, -0.702254, -0.490096, -0.264623,
+                        0.491997, -0.711704,  0.501414,  0.431973,
+                       -0.700923, 0.0177927,  0.713015,   0.24043,
+                            0,         0,         0,            1]
+  
+
+
+  
+  # extrinsicTrans: [-0.263596, -0.373928, 0.24377]
+
+  # extrinsicRot:   [ -0.514521,   0.701075,  -0.493723,  
+  #                   -0.492472,  -0.712956,  -0.499164,  
+  #                   -0.701954, -0.0136853,   0.712091 ]
+
+  # extrinsicRPY:   [ -0.514521,   0.701075,  -0.493723,  
+  #                   -0.492472,  -0.712956,  -0.499164,  
+  #                   -0.701954, -0.0136853,   0.712091 ]
+
 
   # LOAM feature threshold
   edgeThreshold: 1.0
@@ -69,7 +102,7 @@ lio_sam:
   rotation_tollerance: 1000                     # radians
 
   # CPU Params
-  numberOfCores: 4                              # number of cores for mapping optimization
+  numberOfCores: 8                              # number of cores for mapping optimization
   mappingProcessInterval: 0.15                  # seconds, regulate mapping frequency
 
   # Surrounding map

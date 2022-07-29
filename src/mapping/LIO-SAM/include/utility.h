@@ -69,10 +69,13 @@ public:
     std::string robot_id;
 
     //Topics
-    string pointCloudTopic;
+    // string pointCloudTopic;
+    string pointCloudLeftTopic;
+    string pointCloudRightTopic;
     string imuTopic;
     string odomTopic;
     string gpsTopic;
+    string gpsFixTopic;
 
     //Frames
     string lidarFrame;
@@ -82,6 +85,7 @@ public:
 
     // GPS Settings
     bool useImuHeadingInitialization;
+    bool useGPS;
     bool useGpsElevation;
     float gpsCovThreshold;
     float poseCovThreshold;
@@ -112,6 +116,13 @@ public:
     Eigen::Matrix3d extRPY;
     Eigen::Vector3d extTrans;
     Eigen::Quaterniond extQRPY;
+
+
+    vector<double> rightLidarToImuTransform;
+    Eigen::Matrix4d rightLidarToImu;
+
+    vector<double> leftLidarToImuTransform;
+    Eigen::Matrix4d leftLidarToImu;
 
     // LOAM
     float edgeThreshold;
@@ -155,10 +166,14 @@ public:
     {
         nh.param<std::string>("/robot_id", robot_id, "roboat");
 
-        nh.param<std::string>("lio_sam/pointCloudTopic", pointCloudTopic, "points_raw");
+        // nh.param<std::string>("lio_sam/pointCloudTopic", pointCloudTopic, "points_raw");
+        nh.param<std::string>("live_slam/pointCloudLeftTopic",  pointCloudLeftTopic, "ns2/velodyne_points");
+        nh.param<std::string>("live_slam/pointCloudRightTopic", pointCloudRightTopic, "ns1/velodyne_points");
         nh.param<std::string>("lio_sam/imuTopic", imuTopic, "imu_correct");
         nh.param<std::string>("lio_sam/odomTopic", odomTopic, "odometry/imu");
         nh.param<std::string>("lio_sam/gpsTopic", gpsTopic, "odometry/gps");
+        nh.param<std::string>("lio_sam/gpsFixTopic", gpsFixTopic, "/vrs_gps_data");
+
 
         nh.param<std::string>("lio_sam/lidarFrame", lidarFrame, "base_link");
         nh.param<std::string>("lio_sam/baselinkFrame", baselinkFrame, "base_link");
@@ -166,6 +181,7 @@ public:
         nh.param<std::string>("lio_sam/mapFrame", mapFrame, "map");
 
         nh.param<bool>("lio_sam/useImuHeadingInitialization", useImuHeadingInitialization, false);
+        nh.param<bool>("lio_sam/useGPS", useGPS, false);
         nh.param<bool>("lio_sam/useGpsElevation", useGpsElevation, false);
         nh.param<float>("lio_sam/gpsCovThreshold", gpsCovThreshold, 2.0);
         nh.param<float>("lio_sam/poseCovThreshold", poseCovThreshold, 25.0);
@@ -206,13 +222,21 @@ public:
         nh.param<float>("lio_sam/imuGyrBiasN", imuGyrBiasN, 0.00003);
         nh.param<float>("lio_sam/imuGravity", imuGravity, 9.80511);
         nh.param<float>("lio_sam/imuRPYWeight", imuRPYWeight, 0.01);
-        nh.param<vector<double>>("lio_sam/extrinsicRot", extRotV, vector<double>());
-        nh.param<vector<double>>("lio_sam/extrinsicRPY", extRPYV, vector<double>());
-        nh.param<vector<double>>("lio_sam/extrinsicTrans", extTransV, vector<double>());
-        extRot = Eigen::Map<const Eigen::Matrix<double, -1, -1, Eigen::RowMajor>>(extRotV.data(), 3, 3);
-        extRPY = Eigen::Map<const Eigen::Matrix<double, -1, -1, Eigen::RowMajor>>(extRPYV.data(), 3, 3);
-        extTrans = Eigen::Map<const Eigen::Matrix<double, -1, -1, Eigen::RowMajor>>(extTransV.data(), 3, 1);
-        extQRPY = Eigen::Quaterniond(extRPY).inverse();
+
+        nh.param<vector<double>>("lio_sam/right_lidar_to_imu", rightLidarToImuTransform,vector<double>());
+        rightLidarToImu = Eigen::Map<const Eigen::Matrix<double, -1, -1, Eigen::RowMajor>>(rightLidarToImuTransform.data(), 4, 4);
+        nh.param<vector<double>>("lio_sam/left_lidar_to_imu", leftLidarToImuTransform,vector<double>());
+        leftLidarToImu = Eigen::Map<const Eigen::Matrix<double, -1, -1, Eigen::RowMajor>>(leftLidarToImuTransform.data(), 4, 4);
+
+
+
+        // nh.param<vector<double>>("lio_sam/extrinsicRot", extRotV, vector<double>());
+        // nh.param<vector<double>>("lio_sam/extrinsicRPY", extRPYV, vector<double>());
+        // nh.param<vector<double>>("lio_sam/extrinsicTrans", extTransV, vector<double>());
+        // extRot = Eigen::Map<const Eigen::Matrix<double, -1, -1, Eigen::RowMajor>>(extRotV.data(), 3, 3);
+        // extRPY = Eigen::Map<const Eigen::Matrix<double, -1, -1, Eigen::RowMajor>>(extRPYV.data(), 3, 3);
+        // extTrans = Eigen::Map<const Eigen::Matrix<double, -1, -1, Eigen::RowMajor>>(extTransV.data(), 3, 1);
+        // extQRPY = Eigen::Quaterniond(extRPY).inverse();
 
         nh.param<float>("lio_sam/edgeThreshold", edgeThreshold, 0.1);
         nh.param<float>("lio_sam/surfThreshold", surfThreshold, 0.1);
@@ -267,10 +291,18 @@ public:
         // rotate roll pitch yaw
         Eigen::Quaterniond q_from(imu_in.orientation.w, imu_in.orientation.x, imu_in.orientation.y, imu_in.orientation.z);
         Eigen::Quaterniond q_final = q_from * extQRPY;
-        imu_out.orientation.x = q_final.x();
-        imu_out.orientation.y = q_final.y();
-        imu_out.orientation.z = q_final.z();
-        imu_out.orientation.w = q_final.w();
+
+
+        // imu_out.orientation.x = q_final.x();
+        // imu_out.orientation.y = q_final.y();
+        // imu_out.orientation.z = q_final.z();
+        // imu_out.orientation.w = q_final.w();
+
+        imu_out.orientation.x = 0;
+        imu_out.orientation.y = 0;
+        imu_out.orientation.z = 0;
+        imu_out.orientation.w = 1;
+
 
         if (sqrt(q_final.x()*q_final.x() + q_final.y()*q_final.y() + q_final.z()*q_final.z() + q_final.w()*q_final.w()) < 0.1)
         {

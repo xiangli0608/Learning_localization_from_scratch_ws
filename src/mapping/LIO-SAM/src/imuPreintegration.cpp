@@ -459,7 +459,8 @@ public:
     {
         std::lock_guard<std::mutex> lock(mtx);
 
-        sensor_msgs::Imu thisImu = imuConverter(*imu_raw);
+        // sensor_msgs::Imu thisImu = imuConverter(*imu_raw);
+        sensor_msgs::Imu thisImu = *imu_raw;
 
         imuQueOpt.push_back(thisImu);
         imuQueImu.push_back(thisImu);

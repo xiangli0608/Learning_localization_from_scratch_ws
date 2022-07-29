@@ -1,6 +1,8 @@
 <launch>
 
     <arg name="project" default="lio_sam"/>
+
+    <param name="use_sim_time" value="true" />
     
     <!-- Parameters -->
     <rosparam file="$(find lio_sam)/config/params.yaml" command="load" />
@@ -12,7 +14,10 @@
     <include file="$(find lio_sam)/launch/include/module_robot_state_publisher.launch" />
 
     <!--- Run Navsat -->
-    <include file="$(find lio_sam)/launch/include/module_navsat.launch" />
+    <!-- <include file="$(find lio_sam)/launch/include/module_navsat.launch" /> -->
+
+    <!--- Run Navsat -->
+    <node pkg="lio_sam" type="lio_sam_gpsOdometry" name="lio_sam_gpsOdometry"/>
 
     <!--- Run Rviz-->
     <include file="$(find lio_sam)/launch/include/module_rviz.launch" />
