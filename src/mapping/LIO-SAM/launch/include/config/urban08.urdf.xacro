@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<robot name="kaist" xmlns:xacro="http://tixiaoshan.github.io/">
+  <xacro:property name="PI" value="3.1415926535897931" />
+
+  <material name="blue">
+    <color rgba="0.0 0.5 1.0 1"/>
+  </material>
+  <material name="orange">
+    <color rgba="1.0 0.5 0.2 1"/>
+  </material>
+  <material name="gray">
+    <color rgba="0.2 0.2 0.2 1"/>
+  </material>
+
+  <link name="base_link"></link>
+
+  <link name="right_velodyne">
+      <visual>
+          <origin xyz="0 0 0"/>
+          <geometry>
+              <cylinder length="0.1" radius="0.1"/>
+          </geometry>
+          <material name="gray"/>
+      </visual>
+  </link>
+  <joint name="cloud2_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="right_velodyne"/>
+    <origin rpy="3.13323 2.36647 0.770273" xyz="-0.436669 -0.411346 1.94785"/>
+  </joint>
+
+
+  <!-- imu -->
+  <link name="imu">
+      <visual>
+          <origin xyz="0 0 0"/>
+          <geometry>
+              <cylinder length="0.1" radius="0.1"/>
+          </geometry>
+          <material name="gray"/>
+      </visual>
+  </link>
+  <joint name="imu_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="imu"/>
+    <origin rpy="0 0 0" xyz="-0.07 0 1.7"/>
+  </joint>
+
+
+  <!-- gps -->
+  <link name="vrs_gps">
+      <visual>
+          <origin xyz="0 0 0"/>
+          <geometry>
+              <cylinder length="0.1" radius="0.1"/>
+          </geometry>
+          <material name="gray"/>
+      </visual>
+  </link>
+  <joint name="gps_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="vrs_gps"/>
+    <origin rpy="0 0 0" xyz="0 0 1.93"/>
+  </joint>
+
+</robot>

@@ -1503,8 +1503,11 @@ public:
         addOdomFactor();
 
         // gps factor
-        addGPSFactor();
-
+        if(useGPS)
+        {
+            addGPSFactor();
+        }
+        
         // loop factor
         addLoopFactor();
 

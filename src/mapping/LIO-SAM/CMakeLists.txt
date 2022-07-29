@@ -82,6 +82,10 @@ link_directories(
 ## Build ##
 ###########
 
+# Gps odometry
+add_executable(${PROJECT_NAME}_gpsOdometry src/simpleGpsOdom.cpp)
+target_link_libraries(${PROJECT_NAME}_gpsOdometry ${catkin_LIBRARIES})
+
 # Range Image Projection
 add_executable(${PROJECT_NAME}_imageProjection src/imageProjection.cpp)
 add_dependencies(${PROJECT_NAME}_imageProjection ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_generate_messages_cpp)
