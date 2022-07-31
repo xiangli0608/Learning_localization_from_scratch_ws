@@ -1,5 +1,6 @@
 #include <QMutexLocker>
-
+#include <opencv2/opencv.hpp>
+#include <opencv2/highgui.hpp>
 #include "ROSThread.h"
 
 using namespace std;

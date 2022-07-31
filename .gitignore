@@ -6,3 +6,7 @@ install_isolated/
 *~
 src/CMakeLists.txt
 .catkin_workspace
+src/data/bag
+src/data/urban08
+src/data/urban08-20220729T090416Z-001.zip
+.vscode
