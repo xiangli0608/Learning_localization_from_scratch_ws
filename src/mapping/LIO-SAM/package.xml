@@ -45,4 +45,6 @@
   <build_depend>GTSAM</build_depend>
   <run_depend>GTSAM</run_depend>
 
+  <build_depend>roslib</build_depend>
+  <run_depend>roslib</run_depend>
 </package>
