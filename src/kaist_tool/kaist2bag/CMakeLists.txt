@@ -195,7 +195,7 @@ target_link_libraries(${PROJECT_NAME}
         ${catkin_LIBRARIES}
         ${Boost_LIBRARIES}
         ${PCL_LIBRARIES}
-	    ${OpenCV_LIBRARIES}
+	${OpenCV_LIBRARIES}
 )
 
 #############

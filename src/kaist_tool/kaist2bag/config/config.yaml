@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 dataset: "/home/liwei/Learning_localization_from_scratch_ws/src/data/urban08"
 save_to: "/home/liwei/Learning_localization_from_scratch_ws/src/data/bag"
+=======
+dataset: "/home/touchair/kaist_urban_dataset/urban08"
+save_to: "/home/touchair/kaist_urban_dataset/urban08/bag"
+>>>>>>> ba30a2b20b2c3d530f489b3e7b7f1b0a71415881
 
 altimeter: true
 altimeter_topic: "/altimeter_data"
@@ -18,9 +23,15 @@ vrs: true
 vrs_topic: "/vrs_gps_data"
 
 imu: true
+<<<<<<< HEAD
 imu_irp_topic: "/xsens_imu_data"
 imu_raw_topic: "/imu/data_raw"
 imu_mag_topic: "/imu/mag"
+=======
+# imu_irp_topic: "/xsens_imu_data"
+imu_raw_topic: "/imu/data_raw"
+# imu_mag_topic: "/imu/mag"
+>>>>>>> ba30a2b20b2c3d530f489b3e7b7f1b0a71415881
 
 velodyne: true
 velodyne_left_topic: "/ns2/velodyne_points"

@@ -16,6 +16,7 @@
 #include <gtsam/inference/Symbol.h>
 
 #include <gtsam/nonlinear/ISAM2.h>
+#include <ros/package.h>
 
 using namespace gtsam;
 
@@ -1632,7 +1633,12 @@ public:
 
         globalPath.poses.push_back(pose_stamped);
         // 位姿输出到txt文档
-        std::ofstream pose1("/home/liwei/Learning_localization_from_scratch_ws/src/data/kitti_lio_sam_pose.txt", std::ios::app);
+        std::string lio_sam_path  = ros::package::getPath("lio_sam");
+        int npos_1 = lio_sam_path.find_last_of("/");
+        string path = lio_sam_path.substr(0,npos_1);
+        int npos_2 = path.find_last_of("/");
+        std::string src_path = path.substr(0,npos_2);
+        std::ofstream pose1(src_path + "/data/kitti_lio_sam_pose.txt", std::ios::app);
         pose1.setf(std::ios::scientific, std::ios::floatfield);
         Eigen::Matrix3d rotation_matrix;
         rotation_matrix = Eigen::AngleAxisd(pose_in.yaw, Eigen::Vector3d::UnitZ()) * 
@@ -1647,7 +1653,7 @@ public:
         << kitti_pose(1,0) << " " << kitti_pose(1,1) << " " << kitti_pose(1,2) << " " << kitti_pose(1,3) << " "
         << kitti_pose(2,0) << " " << kitti_pose(2,1) << " " << kitti_pose(2,2) << " " << kitti_pose(2,3) << std::endl;
         pose1.close();
-        std::ofstream pose2("/home/liwei/Learning_localization_from_scratch_ws/src/data/tum_lio_sam_pose.txt", std::ios::app);
+        std::ofstream pose2(src_path + "/data/tum_lio_sam_pose.txt", std::ios::app);
         pose2.setf(std::ios::scientific, std::ios::floatfield);
         pose2 << pose_stamped.header.stamp << " " << pose_in.x << " " << pose_in.y << " " << pose_in.z << " "
         << q.x() << " " << q.y() << " " << q.z() << " " << q.w() <<std::endl;

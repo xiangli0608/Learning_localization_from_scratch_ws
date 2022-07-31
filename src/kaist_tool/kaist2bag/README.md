@@ -37,8 +37,16 @@ roslaunch kaist2bag kaist2bag.launch
 rosrun kaist2bag mergebag.py merged.bag <bag_file_1> ... <bag_file_8>
 ```
 
-
-
+7. 把csv转换为tum/kitti格式,转换得到的文件保存在/Learning_localization_from_scratch_ws/src/data下 
+kaist2evo.py在/Learning_localization_from_scratch_ws/src/kaist_tool/kaist2bag/scripts/下
+```
+python3 kaist2evo.py
+```
+8. lio_sam在建图的过程中会自动把位姿保存在data下
+9. 在/data目录下执行
+```
+evo_traj tum tum_lio_sam_pose.txt --ref=tum_ground_truth.txt -a -p
+```
 
 ## Acknowledge
 
