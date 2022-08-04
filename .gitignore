@@ -6,3 +6,4 @@ install_isolated/
 *~
 src/CMakeLists.txt
 .catkin_workspace
+src/data/*

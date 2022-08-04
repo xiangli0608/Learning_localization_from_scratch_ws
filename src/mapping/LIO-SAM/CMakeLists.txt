@@ -9,6 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf
   roscpp
   rospy
+  roslib
   cv_bridge
   # pcl library
   pcl_conversions
