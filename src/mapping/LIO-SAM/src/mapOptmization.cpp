@@ -1337,7 +1337,7 @@ public:
 
         transformTobeMapped[0] = constraintTransformation(transformTobeMapped[0], rotation_tollerance);
         transformTobeMapped[1] = constraintTransformation(transformTobeMapped[1], rotation_tollerance);
-        transformTobeMapped[5] = constraintTransformation(transformTobeMapped[5], z_tollerance);
+        transformTobeMapped[5] = constraintTransformation(transformTobeMapped[5] * zWeight, z_tollerance);
 
         incrementalOdometryAffineBack = trans2Affine3f(transformTobeMapped);
     }
@@ -1410,6 +1410,8 @@ public:
         }
 
         // pose covariance small, no need to correct
+        // std::cout << "poseCovariance(3,3): " << poseCovariance(3,3) << std::endl;
+        // std::cout << "poseCovariance(4,4): " << poseCovariance(4,4) << std::endl;
         if (poseCovariance(3,3) < poseCovThreshold && poseCovariance(4,4) < poseCovThreshold)
             return;
 
@@ -1418,12 +1420,12 @@ public:
 
         while (!gpsQueue.empty())
         {
-            if (gpsQueue.front().header.stamp.toSec() < timeLaserInfoCur - 0.2)
+            if (gpsQueue.front().header.stamp.toSec() < timeLaserInfoCur - 2.0)
             {
                 // message too old
                 gpsQueue.pop_front();
             }
-            else if (gpsQueue.front().header.stamp.toSec() > timeLaserInfoCur + 0.2)
+            else if (gpsQueue.front().header.stamp.toSec() > timeLaserInfoCur + 2.0)
             {
                 // message too new
                 break;
@@ -1610,7 +1612,7 @@ public:
                 cloudKeyPoses6D->points[i].pitch = isamCurrentEstimate.at<Pose3>(i).rotation().pitch();
                 cloudKeyPoses6D->points[i].yaw   = isamCurrentEstimate.at<Pose3>(i).rotation().yaw();
 
-                updatePath(cloudKeyPoses6D->points[i]);
+                // updatePath(cloudKeyPoses6D->points[i]);
             }
 
             aLoopIsClosed = false;
@@ -1632,13 +1634,17 @@ public:
         pose_stamped.pose.orientation.w = q.w();
 
         globalPath.poses.push_back(pose_stamped);
+
         // 位姿输出到txt文档
         std::string lio_sam_path  = ros::package::getPath("lio_sam");
+
+        // std::cout << lio_sam_path << std::endl;
+
         int npos_1 = lio_sam_path.find_last_of("/");
         string path = lio_sam_path.substr(0,npos_1);
         int npos_2 = path.find_last_of("/");
         std::string src_path = path.substr(0,npos_2);
-        std::ofstream pose1(src_path + "/data/kitti_lio_sam_pose.txt", std::ios::app);
+        std::ofstream pose1(lio_sam_path + "/kitti_lio_sam_pose.txt", std::ios::app);
         pose1.setf(std::ios::scientific, std::ios::floatfield);
         Eigen::Matrix3d rotation_matrix;
         rotation_matrix = Eigen::AngleAxisd(pose_in.yaw, Eigen::Vector3d::UnitZ()) * 
@@ -1649,15 +1655,22 @@ public:
         kitti_pose(0,3) = pose_in.x;
         kitti_pose(1,3) = pose_in.y;
         kitti_pose(2,3) = pose_in.z;
+
+        // Eigen::Matrix3d tmp;
+        // tmp << 0, -1, 0, 1, 0, 0, 0, 0, 1;
+
+        // kitti_pose.block<3,1>(0,3) = tmp * kitti_pose.block<3,1>(0,3);
+
         pose1 << kitti_pose(0,0) << " " << kitti_pose(0,1) << " " << kitti_pose(0,2) << " " << kitti_pose(0,3) << " "
         << kitti_pose(1,0) << " " << kitti_pose(1,1) << " " << kitti_pose(1,2) << " " << kitti_pose(1,3) << " "
         << kitti_pose(2,0) << " " << kitti_pose(2,1) << " " << kitti_pose(2,2) << " " << kitti_pose(2,3) << std::endl;
         pose1.close();
-        std::ofstream pose2(src_path + "/data/tum_lio_sam_pose.txt", std::ios::app);
+        std::ofstream pose2(lio_sam_path + "/tum_lio_sam_pose.txt", std::ios::app);
         pose2.setf(std::ios::scientific, std::ios::floatfield);
         pose2 << pose_stamped.header.stamp << " " << pose_in.x << " " << pose_in.y << " " << pose_in.z << " "
         << q.x() << " " << q.y() << " " << q.z() << " " << q.w() <<std::endl;
         pose2.close();
+
     }
 
     void publishOdometry()
@@ -1698,7 +1711,7 @@ public:
             {
                 if (std::abs(cloudInfo.imuPitchInit) < 1.4)
                 {
-                    double imuWeight = 0.1;
+                    double imuWeight = imuRPYWeight;
                     tf::Quaternion imuQuaternion;
                     tf::Quaternion transformQuaternion;
                     double rollMid, pitchMid, yawMid;

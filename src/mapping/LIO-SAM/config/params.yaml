@@ -16,11 +16,11 @@ lio_sam:
   mapFrame: "map"
 
   # GPS Settings
-  useGPS: false
-  useImuHeadingInitialization: true           # if using GPS data, set to "true"
+  useGPS: true
+  useImuHeadingInitialization: false           # if using GPS data, set to "true"
   useGpsElevation: false                      # if GPS elevation is bad, set to "false"
   gpsCovThreshold: 0.5                        # m^2, threshold for using GPS data
-  poseCovThreshold: 15.0                      # m^2, threshold for using GPS data
+  poseCovThreshold: 1.0                      # m^2, threshold for using GPS data
   
   # Export settings
   savePCD: false                              # https://github.com/TixiaoShan/LIO-SAM/issues/3
@@ -28,19 +28,21 @@ lio_sam:
 
   # Sensor Settings
   sensor: velodyne                            # lidar sensor type, 'velodyne' or 'ouster' or 'livox'
-  N_SCAN: 32                                  # number of lidar channel (i.e., Velodyne/Ouster: 16, 32, 64, 128, Livox Horizon: 6)
+  N_SCAN: 16                                  # number of lidar channel (i.e., Velodyne/Ouster: 16, 32, 64, 128, Livox Horizon: 6)
   Horizon_SCAN: 1800                          # lidar horizontal resolution (Velodyne:1800, Ouster:512,1024,2048, Livox Horizon: 4000)
   downsampleRate: 1                           # default: 1. Downsample your data if too many points. i.e., 16 = 64 / 4, 16 = 16 / 1
   lidarMinRange: 1.0                          # default: 1.0, minimum lidar range to be used
-  lidarMaxRange: 100.0                       # default: 1000.0, maximum lidar range to be used
+  lidarMaxRange: 90.0                       # default: 1000.0, maximum lidar range to be used
 
   # IMU Settings
+  imuFrequency: 500
   imuGyrBiasN: 4.848136811e-06
   imuGyrNoise: 1.745329252e-05
   imuAccBiasN: 1.46991e-05
   imuAccNoise: 5.87964e-05
   imuGravity: 9.7994
   imuRPYWeight: 0.01
+  zWeight: 0.985
 
   # imuAccNoise: 0.01
   # imuGyrNoise: 0.01
@@ -59,18 +61,29 @@ lio_sam:
   #                 0, 0, 1]
 
 
+  right_lidar_to_imu: [ -0.512695,    0.700506,   -0.496422,   -0.366669,
+                        -0.497416,   -0.713622,   -0.493276,   -0.411346,
+                        -0.6998, -0.00597189,    0.714313,     0.24785,
+                         0,           0,           0,           1]
+    
+  left_lidar_to_imu: [-0.515105, -0.702383, -0.491249, -0.368343,
+                      0.487008, -0.711468,  0.506593,  0.395882,
+                      -0.70533, 0.0217062,  0.708547,  0.24095,
+                       0,         0,         0,         1]
   
 
-  right_lidar_to_imu:  [-0.514521,   0.701075,  -0.493723,  -0.263596,
-                        -0.492472,  -0.712956,  -0.499164,  -0.373928,
-                        -0.701954,  -0.0136853,   0.712091,    0.24377,
-                          0,          0,          0,                1]
+  
+
+  # right_lidar_to_imu:  [-0.514521,   0.701075,  -0.493723,  -0.263596,
+  #                       -0.492472,  -0.712956,  -0.499164,  -0.373928,
+  #                       -0.701954,  -0.0136853,   0.712091,    0.24377,
+  #                         0,          0,          0,                1]
 
 
-  left_lidar_to_imu: [ -0.516377, -0.702254, -0.490096, -0.264623,
-                        0.491997, -0.711704,  0.501414,  0.431973,
-                       -0.700923, 0.0177927,  0.713015,   0.24043,
-                            0,         0,         0,            1]
+  # left_lidar_to_imu: [ -0.516377, -0.702254, -0.490096, -0.264623,
+  #                       0.491997, -0.711704,  0.501414,  0.431973,
+  #                      -0.700923, 0.0177927,  0.713015,   0.24043,
+  #                           0,         0,         0,            1]
   
 
 
@@ -87,8 +100,8 @@ lio_sam:
 
 
   # LOAM feature threshold
-  edgeThreshold: 1.0
-  surfThreshold: 0.1
+  edgeThreshold: 4.0
+  surfThreshold: 0.05
   edgeFeatureMinValidNum: 10
   surfFeatureMinValidNum: 100
 
@@ -109,7 +122,7 @@ lio_sam:
   surroundingkeyframeAddingDistThreshold: 1.0   # meters, regulate keyframe adding threshold
   surroundingkeyframeAddingAngleThreshold: 0.2  # radians, regulate keyframe adding threshold
   surroundingKeyframeDensity: 2.0               # meters, downsample surrounding keyframe poses   
-  surroundingKeyframeSearchRadius: 50.0         # meters, within n meters scan-to-map optimization (when loop closure disabled)
+  surroundingKeyframeSearchRadius: 25.0         # meters, within n meters scan-to-map optimization (when loop closure disabled)
 
   # Loop closure
   loopClosureEnableFlag: true
@@ -117,11 +130,11 @@ lio_sam:
   surroundingKeyframeSize: 50                   # submap size (when loop closure enabled)
   historyKeyframeSearchRadius: 15.0             # meters, key frame that is within n meters from current pose will be considerd for loop closure
   historyKeyframeSearchTimeDiff: 30.0           # seconds, key frame that is n seconds older will be considered for loop closure
-  historyKeyframeSearchNum: 25                  # number of hostory key frames will be fused into a submap for loop closure
+  historyKeyframeSearchNum: 50                  # number of hostory key frames will be fused into a submap for loop closure
   historyKeyframeFitnessScore: 0.3              # icp threshold, the smaller the better alignment
 
   # Visualization
-  globalMapVisualizationSearchRadius: 1000.0    # meters, global map visualization radius
+  globalMapVisualizationSearchRadius: 500.0    # meters, global map visualization radius
   globalMapVisualizationPoseDensity: 10.0       # meters, global map visualization keyframe density
   globalMapVisualizationLeafSize: 1.0           # meters, global map visualization cloud density
 

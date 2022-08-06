@@ -1138,19 +1138,28 @@ void ROSThread::VelodyneLeftThread()
       }else{
 //        cout << "Re-load left velodyne from path" << endl;
         //load current data
-        pcl::PointCloud<pcl::PointXYZI> cloud;
+    
+        pcl::PointCloud<PointXYZIR> cloud;
         cloud.clear();
         sensor_msgs::PointCloud2 publish_cloud;
         string current_file_name = data_folder_path_ + "/sensor_data/VLP_left" +"/"+ to_string(data) + ".bin";
         if(find(next(velodyne_left_file_list_.begin(),max(0,previous_file_index-search_bound_)),velodyne_left_file_list_.end(),to_string(data)+".bin") != velodyne_left_file_list_.end()){
             ifstream file;
             file.open(current_file_name, ios::in|ios::binary);
+
+            float angle;
+            uint16_t ring;
+
             while(!file.eof()){
-                pcl::PointXYZI point;
+              
+                PointXYZIR point;
                 file.read(reinterpret_cast<char *>(&point.x), sizeof(float));
                 file.read(reinterpret_cast<char *>(&point.y), sizeof(float));
                 file.read(reinterpret_cast<char *>(&point.z), sizeof(float));
                 file.read(reinterpret_cast<char *>(&point.intensity), sizeof(float));
+                angle = atan2(point.z, sqrt(point.x*point.x+point.y*point.y)) / M_PI * 180 + 15;
+                ring = round(angle / 2);
+                point.ring = ring;
                 cloud.points.push_back (point);
             }
             file.close();
@@ -1165,7 +1174,7 @@ void ROSThread::VelodyneLeftThread()
       }
 
       //load next data
-      pcl::PointCloud<pcl::PointXYZI> cloud;
+      pcl::PointCloud<PointXYZIR> cloud;
       cloud.clear();
       sensor_msgs::PointCloud2 publish_cloud;
       current_file_index = find(next(velodyne_left_file_list_.begin(),max(0,previous_file_index-search_bound_)),velodyne_left_file_list_.end(),to_string(data)+".bin") - velodyne_left_file_list_.begin();
@@ -1174,12 +1183,21 @@ void ROSThread::VelodyneLeftThread()
 
           ifstream file;
           file.open(next_file_name, ios::in|ios::binary);
+
+          float angle;
+          uint16_t ring;
+
           while(!file.eof()){
-              pcl::PointXYZI point;
+              PointXYZIR point;
               file.read(reinterpret_cast<char *>(&point.x), sizeof(float));
               file.read(reinterpret_cast<char *>(&point.y), sizeof(float));
               file.read(reinterpret_cast<char *>(&point.z), sizeof(float));
               file.read(reinterpret_cast<char *>(&point.intensity), sizeof(float));
+
+              angle = atan2(point.z, sqrt(point.x*point.x+point.y*point.y)) / M_PI * 180 + 15;
+              ring = round(angle / 2);
+              point.ring = ring;
+
               cloud.points.push_back (point);
           }
           file.close();
@@ -1215,19 +1233,28 @@ void ROSThread::VelodyneRightThread()
       }else{
 //        cout << "Re-load right velodyne from path" << endl;
         //load current data
-        pcl::PointCloud<pcl::PointXYZI> cloud;
+        pcl::PointCloud<PointXYZIR> cloud;
         cloud.clear();
         sensor_msgs::PointCloud2 publish_cloud;
         string current_file_name = data_folder_path_ + "/sensor_data/VLP_right" +"/"+ to_string(data) + ".bin";
         if(find(next(velodyne_right_file_list_.begin(),max(0,previous_file_index-search_bound_)),velodyne_right_file_list_.end(),to_string(data)+".bin") != velodyne_right_file_list_.end()){
             ifstream file;
             file.open(current_file_name, ios::in|ios::binary);
+
+            float angle;
+            uint16_t ring;
+
             while(!file.eof()){
-                pcl::PointXYZI point;
+                PointXYZIR point;
                 file.read(reinterpret_cast<char *>(&point.x), sizeof(float));
                 file.read(reinterpret_cast<char *>(&point.y), sizeof(float));
                 file.read(reinterpret_cast<char *>(&point.z), sizeof(float));
                 file.read(reinterpret_cast<char *>(&point.intensity), sizeof(float));
+
+                angle = atan2(point.z, sqrt(point.x*point.x+point.y*point.y)) / M_PI * 180 + 15;
+                ring = round(angle / 2);
+                point.ring = ring;
+
                 cloud.points.push_back (point);
             }
             file.close();
@@ -1242,7 +1269,7 @@ void ROSThread::VelodyneRightThread()
       }
 
       //load next data
-      pcl::PointCloud<pcl::PointXYZI> cloud;
+      pcl::PointCloud<PointXYZIR> cloud;
       cloud.clear();
       sensor_msgs::PointCloud2 publish_cloud;
       current_file_index = find(next(velodyne_right_file_list_.begin(),max(0,previous_file_index-search_bound_)),velodyne_right_file_list_.end(),to_string(data)+".bin") - velodyne_right_file_list_.begin();
@@ -1251,12 +1278,21 @@ void ROSThread::VelodyneRightThread()
 
           ifstream file;
           file.open(next_file_name, ios::in|ios::binary);
+
+          float angle;
+          uint16_t ring;
+
           while(!file.eof()){
-              pcl::PointXYZI point;
+              PointXYZIR point;
               file.read(reinterpret_cast<char *>(&point.x), sizeof(float));
               file.read(reinterpret_cast<char *>(&point.y), sizeof(float));
               file.read(reinterpret_cast<char *>(&point.z), sizeof(float));
               file.read(reinterpret_cast<char *>(&point.intensity), sizeof(float));
+
+              angle = atan2(point.z, sqrt(point.x*point.x+point.y*point.y)) / M_PI * 180 + 15;
+              ring = round(angle / 2);
+              point.ring = ring;
+
               cloud.points.push_back (point);
           }
           file.close();

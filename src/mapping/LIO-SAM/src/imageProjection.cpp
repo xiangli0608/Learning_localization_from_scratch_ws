@@ -203,11 +203,12 @@ public:
 
     void imuHandler(const sensor_msgs::Imu::ConstPtr& imuMsg)
     {
-        // sensor_msgs::Imu thisImu = imuConverter(*imuMsg);
+       
 
         std::lock_guard<std::mutex> lock1(imuLock);
+         sensor_msgs::Imu thisImu = imuConverter(*imuMsg);
 
-        sensor_msgs::Imu thisImu = *imuMsg;
+        // sensor_msgs::Imu thisImu = *imuMsg;
 
         imuQueue.push_back(thisImu);
 
@@ -267,6 +268,8 @@ public:
 
         mergePointCloud();
 
+        // std::cout << "pointCloudFull size: " << pointCloudFull->size() << std::endl;
+
         if(int(pointCloudFull->size()) < 20000)
         {
             return;
@@ -291,6 +294,8 @@ public:
 
     void pointCloudRightHandler(const sensor_msgs::PointCloud2ConstPtr& rightPointCloud)
     {
+        std::lock_guard<std::mutex> lock1(veloLock);
+
         cachePointCloudRightQueue.push_back(*rightPointCloud);
 
         if(cachePointCloudRightQueue.size() < 5)
@@ -332,7 +337,7 @@ public:
             cloudOut->points[i].z = transform(2,0) * pointFrom.x + transform(2,1) * pointFrom.y + transform(2,2) * pointFrom.z + transform(2,3);
             cloudOut->points[i].intensity = pointFrom.intensity;
             cloudOut->points[i].ring = pointFrom.ring;
-            cloudOut->points[i].time = pointFrom.time;
+            // cloudOut->points[i].time = pointFrom.time;
         }
         return cloudOut;
     }
@@ -754,7 +759,7 @@ public:
 
 
         // range image projection
-        #pragma omp parallel for num_threads(numberOfCores)
+        // #pragma omp parallel for num_threads(numberOfCores)
         for (int i = 0; i < cloudSize; ++i)
         {
             PointType thisPoint;
@@ -786,7 +791,7 @@ public:
             {
                 float horizonAngle = atan2(thisPoint.x, thisPoint.y) * 180 / M_PI;
                 static float ang_res_x = 360.0/float(Horizon_SCAN);
-                columnIdn = -round((horizonAngle-0.0)/ang_res_x) + Horizon_SCAN/2;
+                columnIdn = -round((horizonAngle-90.0)/ang_res_x) + Horizon_SCAN/2;
                 if (columnIdn >= Horizon_SCAN)
                     columnIdn -= Horizon_SCAN;
             }
