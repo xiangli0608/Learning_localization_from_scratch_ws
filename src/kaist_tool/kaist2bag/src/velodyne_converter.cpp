@@ -36,7 +36,7 @@ int VelodyneConverter::Convert() {
     ConvertLeft(left_stamp_file, left_data_dir, left_bag_file.string(), left_topic_, "left_velodyne");
     ROS_INFO("done saving %s", left_bag_file.c_str());
     ROS_INFO("saving %s", right_bag_file.c_str());
-    ConvertRight(right_stamp_file, right_data_dir, right_bag_file.string(), right_topic_, "right_velodyne");
+    ConvertLeft(right_stamp_file, right_data_dir, right_bag_file.string(), right_topic_, "right_velodyne");
     ROS_INFO("done saving %s", right_bag_file.c_str());
 
     return 0;

@@ -137,6 +137,9 @@ public:
 
     float z_tollerance; 
     float rotation_tollerance;
+    float zWeight;
+    float imuFrequency;
+    
 
     // CPU Params
     int numberOfCores;
@@ -222,6 +225,8 @@ public:
         nh.param<float>("lio_sam/imuGyrBiasN", imuGyrBiasN, 0.00003);
         nh.param<float>("lio_sam/imuGravity", imuGravity, 9.80511);
         nh.param<float>("lio_sam/imuRPYWeight", imuRPYWeight, 0.01);
+        nh.param<float>("lio_sam/zWeight", zWeight, 0.99);
+        nh.param<float>("lio_sam/imuFrequency", imuFrequency, 500.0);
 
         nh.param<vector<double>>("lio_sam/right_lidar_to_imu", rightLidarToImuTransform,vector<double>());
         rightLidarToImu = Eigen::Map<const Eigen::Matrix<double, -1, -1, Eigen::RowMajor>>(rightLidarToImuTransform.data(), 4, 4);
@@ -278,37 +283,38 @@ public:
         sensor_msgs::Imu imu_out = imu_in;
         // rotate acceleration
         Eigen::Vector3d acc(imu_in.linear_acceleration.x, imu_in.linear_acceleration.y, imu_in.linear_acceleration.z);
-        acc = extRot * acc;
+        // acc = extRot * acc;
         imu_out.linear_acceleration.x = acc.x();
         imu_out.linear_acceleration.y = acc.y();
         imu_out.linear_acceleration.z = acc.z();
         // rotate gyroscope
         Eigen::Vector3d gyr(imu_in.angular_velocity.x, imu_in.angular_velocity.y, imu_in.angular_velocity.z);
-        gyr = extRot * gyr;
+        // gyr = extRot * gyr;
         imu_out.angular_velocity.x = gyr.x();
         imu_out.angular_velocity.y = gyr.y();
         imu_out.angular_velocity.z = gyr.z();
         // rotate roll pitch yaw
         Eigen::Quaterniond q_from(imu_in.orientation.w, imu_in.orientation.x, imu_in.orientation.y, imu_in.orientation.z);
-        Eigen::Quaterniond q_final = q_from * extQRPY;
+        // Eigen::Quaterniond q_final = q_from * extQRPY;
+
+        q_from.normalize();
+
+        imu_out.orientation.x = q_from.x();
+        imu_out.orientation.y = q_from.y();
+        imu_out.orientation.z = q_from.z();
+        imu_out.orientation.w = q_from.w();
+
+        // imu_out.orientation.x = 0;
+        // imu_out.orientation.y = 0;
+        // imu_out.orientation.z = 0;
+        // imu_out.orientation.w = 1;
 
 
-        // imu_out.orientation.x = q_final.x();
-        // imu_out.orientation.y = q_final.y();
-        // imu_out.orientation.z = q_final.z();
-        // imu_out.orientation.w = q_final.w();
-
-        imu_out.orientation.x = 0;
-        imu_out.orientation.y = 0;
-        imu_out.orientation.z = 0;
-        imu_out.orientation.w = 1;
-
-
-        if (sqrt(q_final.x()*q_final.x() + q_final.y()*q_final.y() + q_final.z()*q_final.z() + q_final.w()*q_final.w()) < 0.1)
-        {
-            ROS_ERROR("Invalid quaternion, please use a 9-axis IMU!");
-            ros::shutdown();
-        }
+        // if (sqrt(q_final.x()*q_final.x() + q_final.y()*q_final.y() + q_final.z()*q_final.z() + q_final.w()*q_final.w()) < 0.1)
+        // {
+        //     ROS_ERROR("Invalid quaternion, please use a 9-axis IMU!");
+        //     ros::shutdown();
+        // }
 
         return imu_out;
     }
