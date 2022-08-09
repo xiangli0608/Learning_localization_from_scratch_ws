@@ -19,7 +19,7 @@ lio_sam:
   useGPS: true
   useImuHeadingInitialization: false           # if using GPS data, set to "true"
   useGpsElevation: false                      # if GPS elevation is bad, set to "false"
-  gpsCovThreshold: 0.5                        # m^2, threshold for using GPS data
+  gpsCovThreshold: 1.0                        # m^2, threshold for using GPS data
   poseCovThreshold: 1.0                      # m^2, threshold for using GPS data
   
   # Export settings
