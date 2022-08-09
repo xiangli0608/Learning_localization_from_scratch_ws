@@ -1647,9 +1647,9 @@ public:
         string path = lio_sam_path.substr(0,npos_1);
         int npos_2 = path.find_last_of("/");
         std::string src_path = path.substr(0,npos_2);
-        std::ofstream pose1(lio_sam_path + "/kitti_lio_sam_pose.txt", std::ios::app);
+        std::ofstream pose1(lio_sam_path + "/kitti_lio_sam_pose.txt");
         pose1.setf(std::ios::scientific, std::ios::floatfield);
-        std::ofstream pose2(lio_sam_path + "/tum_lio_sam_pose.txt", std::ios::app);
+        std::ofstream pose2(lio_sam_path + "/tum_lio_sam_pose.txt");
         pose2.setf(std::ios::scientific, std::ios::floatfield);
         for(auto ite = globalPath.poses.begin();ite!=globalPath.poses.end();ite++)
         {    
