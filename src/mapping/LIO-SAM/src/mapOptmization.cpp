@@ -79,10 +79,12 @@ public:
     ros::Subscriber subCloud;
     ros::Subscriber subGPS;
     ros::Subscriber subLoop;
+    ros::Subscriber subWheelOdom;
 
     ros::ServiceServer srvSaveMap;
 
     std::deque<nav_msgs::Odometry> gpsQueue;
+    std::deque<nav_msgs::Odometry> wheelOdomQueue;
     lio_sam::cloud_info cloudInfo;
 
     vector<pcl::PointCloud<PointType>::Ptr> cornerCloudKeyFrames;
@@ -171,6 +173,7 @@ public:
         subCloud = nh.subscribe<lio_sam::cloud_info>("lio_sam/feature/cloud_info", 1, &mapOptimization::laserCloudInfoHandler, this, ros::TransportHints().tcpNoDelay());
         subGPS   = nh.subscribe<nav_msgs::Odometry> (gpsTopic, 200, &mapOptimization::gpsHandler, this, ros::TransportHints().tcpNoDelay());
         subLoop  = nh.subscribe<std_msgs::Float64MultiArray>("lio_loop/loop_closure_detection", 1, &mapOptimization::loopInfoHandler, this, ros::TransportHints().tcpNoDelay());
+        subWheelOdom = nh.subscribe<nav_msgs::Odometry> (wheelOdomTopic, 200, &mapOptimization::wheelOdomHandler, this, ros::TransportHints().tcpNoDelay());
 
         srvSaveMap  = nh.advertiseService("lio_sam/save_map", &mapOptimization::saveMapService, this);
 
@@ -276,6 +279,11 @@ public:
         gpsQueue.push_back(*gpsMsg);
     }
 
+    void wheelOdomHandler(const nav_msgs::Odometry::ConstPtr& wheelOdomMsg)
+    {
+        wheelOdomQueue.push_back(*wheelOdomMsg);
+    }
+
     void pointAssociateToMap(PointType const * const pi, PointType * const po)
     {
         po->x = transPointAssociateToMap(0,0) * pi->x + transPointAssociateToMap(0,1) * pi->y + transPointAssociateToMap(0,2) * pi->z + transPointAssociateToMap(0,3);
@@ -315,6 +323,25 @@ public:
     {
         return gtsam::Pose3(gtsam::Rot3::RzRyRx(transformIn[0], transformIn[1], transformIn[2]), 
                                   gtsam::Point3(transformIn[3], transformIn[4], transformIn[5]));
+    }
+
+
+    
+    gtsam::Pose3 odometryTogtsamPose3(nav_msgs::Odometry thisOdomMsg)
+    {
+        double odomX, odomY, odomZ;
+        double odomRoll, odomPitch, odomYaw;
+        tf::Quaternion orientation;
+        tf::quaternionMsgToTF(thisOdomMsg.pose.pose.orientation, orientation);
+        tf::Matrix3x3(orientation).getRPY(odomRoll, odomPitch, odomYaw);
+
+        odomX = thisOdomMsg.pose.pose.position.x;
+        odomY = thisOdomMsg.pose.pose.position.y;
+        odomZ = thisOdomMsg.pose.pose.position.z;
+
+        return gtsam::Pose3(gtsam::Rot3::RzRyRx(odomRoll, odomPitch, odomYaw),
+                                  gtsam::Point3(odomX,    odomY,     odomZ));
+
     }
 
     Eigen::Affine3f pclPointToAffine3f(PointTypePose thisPoint)
@@ -1477,6 +1504,82 @@ public:
         }
     }
 
+    void addWheelOdomFactor()
+    {
+
+        if(wheelOdomQueue.empty())
+        {
+            return;
+        }
+
+        while(!wheelOdomQueue.empty())
+        {
+            if(wheelOdomQueue.front().header.stamp.toSec() < timeLaserInfoCur - 0.1)
+            {
+                wheelOdomQueue.pop_front();
+            }
+            // else if(wheelOdomQueue.back().header.stamp.toSec() > timeLaserInfoCur + 0.1)
+            // {
+            //     wheelOdomQueue.pop_back();
+            // }
+            else
+            {
+                break;
+            }
+        }
+
+        if(wheelOdomQueue.size() > 1)
+        {
+
+            if (cloudKeyPoses3D->points.empty())
+            {
+                noiseModel::Diagonal::shared_ptr priorNoise = noiseModel::Diagonal::Variances((Vector(6) << 1e-2, 1e-2, M_PI*M_PI, 1e8, 1e8, 1e8).finished()); // rad*rad, meter*meter
+                gtSAMgraph.add(PriorFactor<Pose3>(0, trans2gtsamPose(transformTobeMapped), priorNoise));
+                initialEstimate.insert(0, trans2gtsamPose(transformTobeMapped));
+            }
+            else
+            {
+                // 取首尾的里程计数据
+                nav_msgs::Odometry thisOdom = wheelOdomQueue.front();
+                nav_msgs::Odometry nextOdom = wheelOdomQueue.back();
+                wheelOdomQueue.clear();
+
+                
+                PointType curOdomPoint, nextOdomPoint;
+                curOdomPoint.x = thisOdom.pose.pose.position.x;
+                curOdomPoint.y = thisOdom.pose.pose.position.y;
+                curOdomPoint.z = thisOdom.pose.pose.position.z;
+                nextOdomPoint.x = nextOdom.pose.pose.position.x;
+                nextOdomPoint.y = nextOdom.pose.pose.position.y;
+                nextOdomPoint.z = nextOdom.pose.pose.position.z;
+
+                // std::cout << pointDistance(curOdomPoint) << std::endl;
+                // 如果轮式里程计超过一定距离，启用激光里程计
+                if(pointDistance(curOdomPoint) > 10.0)
+                {
+                    useWheelOdom = false;
+                    useLidarOdom = true;
+                }
+
+                // 如果首尾里程计距离过大，则认为不可信
+                if (pointDistance(curOdomPoint, nextOdomPoint) > 5.0)
+                {
+                    return;
+                }
+                
+                noiseModel::Diagonal::shared_ptr odometryNoise = noiseModel::Diagonal::Variances((Vector(6) << 1, 1, M_PI*M_PI, 2, 2, 2).finished());
+                gtsam::Pose3 poseFrom = odometryTogtsamPose3(thisOdom);
+                gtsam::Pose3 poseTo   = odometryTogtsamPose3(nextOdom);
+
+                gtSAMgraph.add(BetweenFactor<Pose3>(cloudKeyPoses3D->size()-1, cloudKeyPoses3D->size(), poseFrom.between(poseTo), odometryNoise));
+
+                gtsam:Pose3 poseInit = pclPointTogtsamPose3(cloudKeyPoses6D->points.back());
+                poseTo = poseInit * poseFrom.between(poseTo);
+                initialEstimate.insert(cloudKeyPoses3D->size(), poseTo);
+            }
+        }
+    }
+
     void addLoopFactor()
     {
         if (loopIndexQueue.empty())
@@ -1503,8 +1606,17 @@ public:
             return;
 
         // odom factor
-        addOdomFactor();
-
+        if(useLidarOdom)
+        {
+            addOdomFactor();
+        }
+        
+        // wheel odom factor
+        if(useWheelOdom)
+        {
+            addWheelOdomFactor();
+        }
+        
         // gps factor
         if(useGPS)
         {

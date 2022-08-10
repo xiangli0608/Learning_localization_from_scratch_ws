@@ -8,6 +8,7 @@ lio_sam:
   odomTopic: "odometry/imu"                   # IMU pre-preintegration odometry, same frequency as IMU
   gpsTopic: "/gps_odom"                   # GPS odometry topic from navsat, see module_navsat.launch file
   gpsFixTopic: "/vrs_gps_data"
+  wheelOdomTopic: "/wheel_odom"
 
   # Frames
   lidarFrame: "base_link"
@@ -43,6 +44,12 @@ lio_sam:
   imuGravity: 9.7994
   imuRPYWeight: 0.01
   zWeight: 0.985
+
+  # LidarOdom Settings
+  useLidarOdom: false
+
+  # WheelOdom Settings
+  useWheelOdom: true
 
   # imuAccNoise: 0.01
   # imuGyrNoise: 0.01

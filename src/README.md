@@ -25,18 +25,31 @@ evo_traj tum tum_lio_sam_pose.txt --ref=tum_ground_truth.txt -a -p
 - 替换原始EKF节点，增加原始gps数据转Odometry节点，发布因子图需要的gps数据类型
 - 去除原代码中ring和time字段的检查，在数据集转rosbag过程中添加此字段
 - 代码中一些参数的改动，IMU频率，是否启用gps，IMU内参
+- 增加轮式里程计约束，可以在配置文件中选择是否启用
+- 在launch直接播放rosbag，无需手动播放rosbag
 
 
 #### 测试效果
 
 ```
+roslaunch lio_sam run.launch
+```
+
+```
 evo_traj kitti kitti_vrs_gps.txt kitti_lio_sam_pose.txt --ref=kitti_ground_truth.txt -p --plot_mode xy
 ```
 
-无gps约束
-![](results/3.png)
-![](results/2.png)
+```
 
-有gps约束
-![](results/6.png)
-![](results/5.png)
+  # GPS Settings
+  useGPS: true
+
+  # LidarOdom Settings
+  useLidarOdom: false
+
+  # WheelOdom Settings
+  useWheelOdom: true
+```
+
+启用gps约束，开始阶段关闭激光里程计约束，使用轮式里程计约束
+![](results/1.png)

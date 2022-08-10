@@ -3,7 +3,9 @@
     <arg name="project" default="lio_sam"/>
 
     <param name="use_sim_time" value="true" />
-    
+
+    <arg name="bag_filename" default="/home/touchair/kaist_urban_dataset/urban08/bag/urban08.bag"/>
+
     <!-- Parameters -->
     <rosparam file="$(find lio_sam)/config/params.yaml" command="load" />
 
@@ -21,5 +23,8 @@
 
     <!--- Run Rviz-->
     <include file="$(find lio_sam)/launch/include/module_rviz.launch" />
+
+     <!-- play bagfile -->
+    <node name="playbag" pkg="rosbag" type="play" args="--clock --bags $(arg bag_filename)" />
 
 </launch>

@@ -76,6 +76,7 @@ public:
     string odomTopic;
     string gpsTopic;
     string gpsFixTopic;
+    string wheelOdomTopic;
 
     //Frames
     string lidarFrame;
@@ -89,6 +90,10 @@ public:
     bool useGpsElevation;
     float gpsCovThreshold;
     float poseCovThreshold;
+
+    // Odom Settings
+    bool useWheelOdom;
+    bool useLidarOdom;
 
     // Save pcd
     bool savePCD;
@@ -176,6 +181,7 @@ public:
         nh.param<std::string>("lio_sam/odomTopic", odomTopic, "odometry/imu");
         nh.param<std::string>("lio_sam/gpsTopic", gpsTopic, "odometry/gps");
         nh.param<std::string>("lio_sam/gpsFixTopic", gpsFixTopic, "/vrs_gps_data");
+        nh.param<std::string>("lio_sam/wheelOdomTopic", wheelOdomTopic, "/wheel_odom");
 
 
         nh.param<std::string>("lio_sam/lidarFrame", lidarFrame, "base_link");
@@ -189,6 +195,9 @@ public:
         nh.param<float>("lio_sam/gpsCovThreshold", gpsCovThreshold, 2.0);
         nh.param<float>("lio_sam/poseCovThreshold", poseCovThreshold, 25.0);
 
+        nh.param<bool>("lio_sam/useLidarOdom", useLidarOdom, false);
+        nh.param<bool>("lio_sam/useWheelOdom", useWheelOdom, false);
+        
         nh.param<bool>("lio_sam/savePCD", savePCD, false);
         nh.param<std::string>("lio_sam/savePCDDirectory", savePCDDirectory, "/Downloads/LOAM/");
 
