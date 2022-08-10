@@ -67,10 +67,13 @@ int main(int argc, char** argv) {
 
 
     if(sensors[SensorType::kEncoder]) {
-        std::string encoder_irp_topic, encoder_raw_topic;
-        nh.getParam("encoder_irp_topic", encoder_irp_topic);
-        nh.getParam("encoder_raw_topic", encoder_raw_topic);
-        EncoderConverter encoder(dataset, save_to, encoder_irp_topic, encoder_raw_topic);
+        std::string wheel_odom_topic;
+        nh.getParam("wheel_odom_topic", wheel_odom_topic);
+        // std::string encoder_irp_topic, encoder_raw_topic;
+        // nh.getParam("encoder_irp_topic", encoder_irp_topic);
+        // nh.getParam("encoder_raw_topic", encoder_raw_topic);
+        EncoderConverter encoder(dataset, save_to, wheel_odom_topic);
+        // EncoderConverter encoder(dataset, save_to, encoder_irp_topic, encoder_raw_topic);
         encoder.Convert();
     }
     double t2 = ros::Time::now().toSec();
