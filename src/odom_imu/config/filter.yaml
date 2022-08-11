@@ -1,0 +1,36 @@
+covariance:
+    prior:
+        pos: 1.0e-6
+        vel: 1.0e-6
+        ori: 1.0e-6
+        epsilon: 1.0e-6
+        delta: 1.0e-6
+    process:
+        gyro: 2.5e-3
+        accel: 2.5e-3
+        bias_accel: 2.5e-3
+        bias_gyro: 1.0e-4
+    measurement:
+        pose:
+            pos: 1.0e-4
+            ori: 1.0e-4
+        pos: 1.0e-4
+        vel: 2.5e-3
+motion_constraint: 
+    activated: true
+    w_b_thresh: 0.13
+
+# odom_or_vel: true
+odom_or_vel: true   
+
+
+# imu_topic: "/kitti/oxts/imu/extract"
+imu_topic: "/imu/data_raw"
+
+
+ENCODER_TOPIC: "/encoder_count"
+
+Encoder_resolution: 4096
+Encoder_left_wheel_diameter: 0.623803
+Encoder_right_wheel_diameter: 0.623095
+Encoder_wheel_base: 1.52683
