@@ -1,0 +1,18 @@
+<launch>
+
+    <param name="use_sim_time" value="true" />
+
+    <arg name="bag_filename" default="/home/touchair/kaist_urban_dataset/urban08/bag/urban08.bag"/>
+
+    <node pkg="lidar_odometry" type="feature_extraction" name="feature_extraction" output="screen" />
+        
+    <node pkg="lidar_odometry" type="scan_to_scan_odometry" name="scan_to_scan_odometry" output="screen" />
+
+    <node pkg="lidar_odometry" type="scan_to_map_odometry" name="scan_to_map_odometry" output="screen" />
+
+    <node pkg="rviz" type="rviz" name="rviz" args="-d $(find lidar_odometry)/rviz_cfg/rviz.rviz" />
+
+     <!-- play bagfile -->
+    <node name="playbag" pkg="rosbag" type="play" args="--clock --bags $(arg bag_filename)" />
+
+</launch>

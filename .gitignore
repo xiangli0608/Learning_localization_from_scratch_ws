@@ -11,4 +11,3 @@ src/.vscode/
 src/mapping/LIO-SAM/kitti_lio_sam_pose.txt
 src/mapping/LIO-SAM/tum_lio_sam_pose.txt
 src/mapping/LIO-SAM/kitti_ground_truth.txt
-src/results/*

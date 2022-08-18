@@ -139,7 +139,7 @@ catkin_package(
 
 file(GLOB_RECURSE ALL_SRCS "*.cc")
 file(GLOB_RECURSE NODE_SRCS "src/apps/*_node.cpp")
-list(REMOVE_ITEM ALL_SRCS ${NODE_SRCS})
+# list(REMOVE_ITEM ${ALL_SRCS} ${NODE_SRCS})
 
 ###########
 ## Build ##

@@ -72,7 +72,7 @@ Eigen::Matrix3d eulerAnglesToRotationMatrix(Eigen::Vector3d &theta)
 
 Eigen::Vector3d rotationMatrixToEulerAngles(Eigen::Matrix3d &R)
 {
-    assert(isRotationMatirx(R));
+    // assert(isRotationMatirx(R));
     double sy = sqrt(R(0,0) * R(0,0) + R(1,0) * R(1,0));
     bool singular = sy < 1e-6;
     double x, y, z;
@@ -216,7 +216,7 @@ OdomImuFlow::~OdomImuFlow()
 
 void OdomImuFlow::InitWithConfig(){
     
-    std::string config_file_path =  "/home/maotian/RosProject/slammaotian/Localization_lixiang/Learning_localization_from_scratch_ws-master/src/odom_imu/config/filter.yaml";
+    std::string config_file_path =  "/home/touchair/Learning_localization_from_scratch_ws/src/odom_imu/config/filter.yaml";
 
     YAML::Node node = YAML::LoadFile(config_file_path);
 

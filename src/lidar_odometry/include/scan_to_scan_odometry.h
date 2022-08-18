@@ -1,0 +1,4 @@
+#ifndef SCAN_TO_SCAN_ODOMETRY_H_
+#define SCAN_TO_SCAN_ODOMETRY_H_
+
+#endif
