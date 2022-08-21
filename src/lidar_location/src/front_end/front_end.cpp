@@ -22,6 +22,7 @@ bool FrontEnd::InitWithConfig() {
     YAML::Node config_node = YAML::LoadFile(config_file_path);
 
     InitDataPath(config_node);
+    InitParam(config_node);
     InitRegistration(registration_ptr_, config_node);
     InitFilter("local_map", local_map_filter_ptr_, config_node);
     InitFilter("frame", frame_filter_ptr_, config_node);
@@ -33,8 +34,30 @@ bool FrontEnd::InitWithConfig() {
 bool FrontEnd::InitParam(const YAML::Node& config_node) {
     key_frame_distance_ = config_node["key_frame_distance"].as<float>();
     local_frame_num_ = config_node["local_frame_num"].as<int>();
-
+    map = config_node["map"].as<std::string>();
+    if(map == "offline") {
+        InitOfflineMap(config_node);
+    }
+    ROS_INFO_STREAM("使用地图方式为：" << map << std::endl;);
     return true;
+}
+
+bool FrontEnd::InitOfflineMap(const YAML::Node& config_node) {
+    map_path = config_node["map_path"].as<std::string>();
+    if(boost::filesystem::is_regular_file(map_path)) {
+        ROS_INFO_STREAM("离线地图存放在：" << map_path << std::endl;);
+    } else {
+        ROS_WARN_STREAM("文件 " << map_path << "不存在!";);
+        return false;
+    }
+    return true;
+}
+
+bool FrontEnd::IfOfflineMap() {
+    if(map == "offline") {
+        return true;
+    }
+    return false;
 }
 
 bool FrontEnd::InitDataPath(const YAML::Node& config_node) {
@@ -186,6 +209,41 @@ bool FrontEnd::UpdateWithNewFrame(const Frame& new_key_frame) {
     return true;
 }
 
+Eigen::Matrix4f FrontEnd::UpdateWithOfflineMap(const CloudData& cloud_data) {
+    current_frame_.cloud_data.time = cloud_data.time;
+    std::vector<int> indices;
+    pcl::removeNaNFromPointCloud(*cloud_data.cloud_ptr, *current_frame_.cloud_data.cloud_ptr, indices);
+
+    CloudData::CLOUD_PTR filtered_cloud_ptr(new CloudData::CLOUD());
+    frame_filter_ptr_->Filter(current_frame_.cloud_data.cloud_ptr, filtered_cloud_ptr);
+
+    static Eigen::Matrix4f step_pose = Eigen::Matrix4f::Identity();
+    static Eigen::Matrix4f last_pose = init_pose_;
+    static Eigen::Matrix4f predict_pose = init_pose_;
+    static Eigen::Matrix4f last_key_frame_pose = init_pose_;
+    static bool map_setting = false;
+ 
+    if(!map_setting) {
+        CloudData::CLOUD_PTR offline_map_ptr(new CloudData::CLOUD());
+        pcl::io::loadPCDFile(map_path, *offline_map_ptr);
+        CloudData::CLOUD_PTR filtered_offline_map_ptr(new CloudData::CLOUD());
+        local_map_filter_ptr_->Filter(offline_map_ptr, filtered_offline_map_ptr);
+        registration_ptr_->SetInputTarget(filtered_offline_map_ptr);
+        map_setting = true;
+
+        global_map_ptr_.reset(new CloudData::CLOUD());
+        *global_map_ptr_ = *filtered_offline_map_ptr;
+        has_new_global_map_ = true;
+    }
+
+    registration_ptr_->ScanMatch(filtered_cloud_ptr, predict_pose, result_cloud_ptr_, current_frame_.pose);
+
+    step_pose = last_pose.inverse() * current_frame_.pose;
+    predict_pose = current_frame_.pose * step_pose;
+    last_pose = current_frame_.pose;
+    return current_frame_.pose;
+}
+
 bool FrontEnd::SaveMap() {
     global_map_ptr_.reset(new CloudData::CLOUD());
 
@@ -209,6 +267,7 @@ bool FrontEnd::SaveMap() {
 
     return true;
 }
+
 
 bool FrontEnd::GetNewLocalMap(CloudData::CLOUD_PTR& local_map_ptr) {
     if (has_new_local_map_) {

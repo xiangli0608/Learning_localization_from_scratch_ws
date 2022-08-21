@@ -64,6 +64,8 @@
   <build_export_depend>std_msgs</build_export_depend>
   <build_export_depend>tf</build_export_depend>
   <build_export_depend>roslib</build_export_depend>
+  <build_depend>message_generation</build_depend>
+  <exec_depend>message_runtime</exec_depend>
   <exec_depend>eigen_conversions</exec_depend>
   <exec_depend>geometry_msgs</exec_depend>
   <exec_depend>pcl_ros</exec_depend>

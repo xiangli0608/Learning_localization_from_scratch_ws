@@ -17,10 +17,24 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   tf
   roslib
+  message_generation
 )
+
+add_service_files(
+   FILES
+   saveMap.srv
+)
+
+generate_messages(
+   DEPENDENCIES
+   std_msgs
+)
+
 set(ALL_TARGET_LIBRARIES "")
 
-
+find_package (GeographicLib REQUIRED)
+include_directories(${GeographicLib_INCLUDE_DIRS})
+list(APPEND ALL_TARGET_LIBRARIES ${GeographicLib_LIBRARIES})
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(YAML_CPP REQUIRED yaml-cpp)
 include_directories(${YAML_CPP_INCLUDEDIR})
@@ -128,7 +142,7 @@ list(REMOVE_ITEM ALL_SRCS ${NODE_SRCS})
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES lidar_location
-#  CATKIN_DEPENDS eigen_conversions geometry_msgs pcl_ros roscpp rospy std_msgs tf
+   CATKIN_DEPENDS eigen_conversions geometry_msgs pcl_ros roscpp rospy std_msgs tf message_runtime
 #  DEPENDS system_lib
 )
 
@@ -158,6 +172,7 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/lidar_location_node.cpp)
 add_executable(front_end_node src/front_end_node.cpp ${ALL_SRCS})
+add_dependencies(front_end_node ${catkin_EXPORTED_TARGETS} ${PROJECT_NAME}_gencpp)
 target_link_libraries(front_end_node ${catkin_LIBRARIES} ${ALL_TARGET_LIBRARIES})
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the

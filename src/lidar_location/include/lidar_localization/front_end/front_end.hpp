@@ -25,15 +25,19 @@ class FrontEnd {
 
     bool InitWithConfig();
     Eigen::Matrix4f Update(const CloudData& cloud_data);
+    Eigen::Matrix4f UpdateWithOfflineMap(const CloudData& cloud_data);
     bool SetInitPose(const Eigen::Matrix4f& init_pose);
 
     bool SaveMap();
+    bool PublishGlobalMap();
     bool GetNewLocalMap(CloudData::CLOUD_PTR& local_map_ptr);
     bool GetNewGlobalMap(CloudData::CLOUD_PTR& global_map_ptr);
     bool GetCurrentScan(CloudData::CLOUD_PTR& current_scan_ptr);
+    bool IfOfflineMap();
 
   private:
     bool InitParam(const YAML::Node& config_node);
+    bool InitOfflineMap(const YAML::Node& config_node);
     bool InitDataPath(const YAML::Node& config_node);
     bool InitRegistration(std::shared_ptr<RegistrationInterface>& registration_ptr, const YAML::Node& config_node);
     bool InitFilter(std::string filter_user, std::shared_ptr<CloudFilterInterface>& filter_ptr, const YAML::Node& config_node);
@@ -61,6 +65,8 @@ class FrontEnd {
 
     float key_frame_distance_ = 2.0;
     int local_frame_num_ = 20;
+    std::string map;
+    std::string map_path;
 };
 }
 
