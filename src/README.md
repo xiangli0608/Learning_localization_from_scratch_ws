@@ -1,16 +1,18 @@
 # Learning_localization_from_scratch_ws
-## evo(kitti/tum)
+## evo评估
+### 从数据包获得位姿
 ```
-mkdir src/data
 cd src/kaist_tool/kaist2bag/scripts/
 pip3 install -r requirements.txt
-python3 kaist2evo.py
+python3 kaist2evo.py -p [urban_path:数据包文件夹的地址] -o [output_path:default=urban_path]
 roslaunch lio_sam run.launch 
 ```
 
+### 执行评估
+* 执行评估前需要先完成基于LIO-SAM的建图，建图完成后会自动生成kitti_lio_sam_pose.txt，tum_lio_sam_pose.txt，拷贝到output_path
 ```
-cd src/data
 evo_traj tum tum_lio_sam_pose.txt --ref=tum_ground_truth.txt -a -p
+evo_traj kitti kitti_vrs_gps.txt kitti_lio_sam_pose.txt --ref=kitti_ground_truth.txt -p
 ```
 
 ## 基于LIO-SAM的建图

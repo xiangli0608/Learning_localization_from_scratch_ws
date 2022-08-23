@@ -1,7 +1,7 @@
 data_path: ./   # 数据存放路径
 # 选择离线地图
-map: online  # 目前支持: offline, online
-map_path: /home/liwei/Learning_localization_from_scratch_ws/src/data/map.pcd
+map: offline  # 目前支持: offline, online
+map_path: /home/liwei/Learning_localization_from_scratch_ws/src/data/GlobalMap.pcd
 # 匹配
 registration_method: NDT   # 选择点云匹配方法，目前支持：NDT 
 
