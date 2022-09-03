@@ -448,7 +448,7 @@ public:
 
     void visualizeGlobalMapThread()
     {
-        ros::Rate rate(0.2);
+        ros::Rate rate(0.5);
         while (ros::ok()){
             rate.sleep();
             publishGlobalMap();

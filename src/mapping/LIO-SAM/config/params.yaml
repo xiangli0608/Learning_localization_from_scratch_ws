@@ -24,7 +24,7 @@ lio_sam:
   poseCovThreshold: 1.0                      # m^2, threshold for using GPS data
   
   # Export settings
-  savePCD: false                              # https://github.com/TixiaoShan/LIO-SAM/issues/3
+  savePCD: true                              # https://github.com/TixiaoShan/LIO-SAM/issues/3
   savePCDDirectory: "/Downloads/LOAM/"        # in your home folder, starts and ends with "/". Warning: the code deletes "LOAM" folder then recreates it. See "mapOptimization" for implementation
 
   # Sensor Settings
@@ -143,7 +143,7 @@ lio_sam:
   # Visualization
   globalMapVisualizationSearchRadius: 500.0    # meters, global map visualization radius
   globalMapVisualizationPoseDensity: 10.0       # meters, global map visualization keyframe density
-  globalMapVisualizationLeafSize: 1.0           # meters, global map visualization cloud density
+  globalMapVisualizationLeafSize: 0.2           # meters, global map visualization cloud density
 
 
 
