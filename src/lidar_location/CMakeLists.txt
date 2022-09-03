@@ -32,7 +32,8 @@ generate_messages(
 
 set(ALL_TARGET_LIBRARIES "")
 
-find_package (GeographicLib REQUIRED)
+LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
+find_package(GeographicLib REQUIRED)
 include_directories(${GeographicLib_INCLUDE_DIRS})
 list(APPEND ALL_TARGET_LIBRARIES ${GeographicLib_LIBRARIES})
 find_package(PkgConfig REQUIRED)

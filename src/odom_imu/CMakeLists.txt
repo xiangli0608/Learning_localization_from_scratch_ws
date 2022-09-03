@@ -137,10 +137,6 @@ catkin_package(
 )
 
 
-file(GLOB_RECURSE ALL_SRCS "*.cc")
-file(GLOB_RECURSE NODE_SRCS "src/apps/*_node.cpp")
-# list(REMOVE_ITEM ${ALL_SRCS} ${NODE_SRCS})
-
 ###########
 ## Build ##
 ###########
@@ -156,7 +152,7 @@ include
 )
 
 ## lidar undistortion
-add_executable(${PROJECT_NAME}_odom_imu_node src/app/odom_imu_node.cc ${ALL_SRCS})
+add_executable(${PROJECT_NAME}_odom_imu_node src/app/odom_imu_node.cc src/odom_imu_flow.cc)
 
 add_dependencies(${PROJECT_NAME}_odom_imu_node  ${catkin_EXPORTED_TARGETS})
 target_link_libraries(${PROJECT_NAME}_odom_imu_node
