@@ -43,12 +43,17 @@ chmod +x install_dependence.sh
 
 - [working] xx
 - [done] xx
-
+- [TODO] xx
 ---
 
 以下为每篇文章对应的节点如何运行，以及对应节点的功能简介
 
-## 转录bag 
+## 基于LIO-SAM的建图
+
+### 数据集
+[Complex Urban Dataset](https://sites.google.com/view/complex-urban-dataset/download-lidar#h.sa42osfdnwst)
+
+### 转录bag 
 Kaist数据集的使用也可以通过工具将数据转成bag从而进行使用。使用的工具是kaist2bag，这个工具已经在工程的kaist_tool文件夹里了，可以直接使用。
 
 具体的使用方法为：
@@ -56,41 +61,35 @@ Kaist数据集的使用也可以通过工具将数据转成bag从而进行使用
 - 执行命令 `roslaunch kaist2bag kaist2bag.launch`, 即可将每种传感器数据写成独立的bag
 - 再执行命令 `rosrun kaist2bag mergebag.py merged.bag <bag_file_1> ... <bag_file_8>`, 即可将多个bag合成一个bag
 
-## 基于LIO-SAM的建图
-
-### 数据集
-[Complex Urban Dataset](https://sites.google.com/view/complex-urban-dataset/download-lidar#h.sa42osfdnwst)
-
 ### 运行
 数据就使用之前转录好的bag，将bag的地址填写在 LIO-SAM/launch/run.launch 中，通过命令 `roslaunch lio_sam run.launch`, 开始建图。
 
-### 测试效果
+### 建图效果展示
+
+![lio-sam-result](src/doc/img/lio-sam-result.png)
+
+## 建图精度评估 evo(kitti/tum)
+
+#### 第一步 将kaist的真值转成evo能够读取的格式
+
+这一步需要安装依赖项
+`pip3 install numpy scipy`
+已经填写在 install_dependence.sh 文件中。
+
+cd src/kaist_tool/kaist2bag/scripts/
+python3 kaist2evo.py -p [urban_path:数据包文件夹的地址] -o [output_path:default=urban_path]
 
 ```
 evo_traj kitti kitti_vrs_gps.txt kitti_lio_sam_pose.txt --ref=kitti_ground_truth.txt -p --plot_mode xy
 ```
 
-```
 
-  # GPS Settings
-  useGPS: true
-
-  # LidarOdom Settings
-  useLidarOdom: false
-
-  # WheelOdom Settings
-  useWheelOdom: true
-```
 
 启用gps约束，开始阶段关闭激光里程计约束，使用轮式里程计约束
-![](results/1.png)
+![](src/doc/img/1.png)
 
-### 精度评估 evo(kitti/tum)
+
 ```
-mkdir src/data
-cd src/kaist_tool/kaist2bag/scripts/
-pip3 install -r requirements.txt
-python3 kaist2evo.py
 roslaunch lio_sam run.launch 
 
 evo_traj kitti kitti_ground_truth.txt kitti_lio_sam_pose.txt kitti_vrs_gps.txt -p --plot_mode xy
@@ -101,13 +100,7 @@ cd src/data
 evo_traj tum tum_lio_sam_pose.txt --ref=tum_ground_truth.txt -a -p
 ```
 
-### 从数据包获得位姿
-```
-cd src/kaist_tool/kaist2bag/scripts/
-pip3 install -r requirements.txt
-python3 kaist2evo.py -p [urban_path:数据包文件夹的地址] -o [output_path:default=urban_path]
-roslaunch lio_sam run.launch 
-```
+
 
 ### 执行评估
 * 执行评估前需要先完成基于LIO-SAM的建图，建图完成后会自动生成kitti_lio_sam_pose.txt，tum_lio_sam_pose.txt，拷贝到output_path
@@ -124,7 +117,18 @@ evo_traj kitti kitti_vrs_gps.txt kitti_lio_sam_pose.txt --ref=kitti_ground_truth
 - 代码中一些参数的改动，IMU频率，是否启用gps，IMU内参
 - 增加轮式里程计约束，可以在配置文件中选择是否启用
 - 在launch直接播放rosbag，无需手动播放rosbag 
+- 可选参数配置如下
 
+```
+  # GPS Settings
+  useGPS: true
+
+  # LidarOdom Settings
+  useLidarOdom: false
+
+  # WheelOdom Settings
+  useWheelOdom: true
+```
 
 ## 基于点面匹配的激光里程计
 
@@ -148,4 +152,4 @@ LIO-SAM角点和平面匹配的残差构建和雅克比推导可以参考：http
 roslaunch lidar_odometry run.launch
 ```
 
-![2](src/results/2.png)
+![2](src/doc/img/2.png)

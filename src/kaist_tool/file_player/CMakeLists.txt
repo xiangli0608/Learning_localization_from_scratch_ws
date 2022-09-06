@@ -27,8 +27,6 @@ find_package(catkin REQUIRED cmake_modules
 )
 set(CMAKE_AUTOMOC ON)
 
-find_package(OpenCV)
-include_directories(${OpenCV})
 find_package(Eigen REQUIRED)
 
 #set (CMAKE_PREFIX_PATH /opt/Qt5.6.1/5.6/gcc_64/lib/cmake)
@@ -99,7 +97,6 @@ include_directories(
   ${PROJECT_BINARY_DIR}
   include
   ${Eigen_INCLUDE_DIRS}
-  ${OpenCV_LIBRARIES}
 )
 
 

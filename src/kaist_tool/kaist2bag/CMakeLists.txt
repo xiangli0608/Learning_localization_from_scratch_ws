@@ -27,8 +27,6 @@ find_package(Boost REQUIRED COMPONENTS
         filesystem)
 
 find_package(PCL REQUIRED)
-find_package(OpenCV)
-include_directories(${OpenCV})
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -187,7 +185,6 @@ target_link_libraries(${PROJECT_NAME}
         ${catkin_LIBRARIES}
         ${Boost_LIBRARIES}
         ${PCL_LIBRARIES}
-	${OpenCV_LIBRARIES}
 )
 
 #############

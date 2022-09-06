@@ -1748,50 +1748,57 @@ public:
         globalPath.poses.push_back(pose_stamped);
     }
 
-    void saveGlobalPath()
+    // 输出轨迹到txt
+    void saveGlobalPath() 
     {
-        // 位姿输出到txt文档
-        std::string lio_sam_path  = ros::package::getPath("lio_sam");
+      std::string lio_sam_path = ros::package::getPath("lio_sam");
+      int npos_1 = lio_sam_path.find_last_of("/");
+      std::string path = lio_sam_path.substr(0, npos_1);
+      int npos_2 = path.find_last_of("/");
+      // src文件夹
+      std::string src_path = path.substr(0, npos_2);
 
-        // std::cout << lio_sam_path << std::endl;
+      std::ofstream pose1(src_path + "/doc/mapping_results" +
+                          "/kitti_lio_sam_pose.txt");
+      pose1.setf(std::ios::scientific, std::ios::floatfield);
+      std::ofstream pose2(src_path + "/doc/mapping_results" +
+                          "/tum_lio_sam_pose.txt");
+      pose2.setf(std::ios::scientific, std::ios::floatfield);
+      for (auto ite = globalPath.poses.begin(); ite != globalPath.poses.end();
+           ite++) {
+        geometry_msgs::PoseStamped pose_stamped = *ite;
+        // tum格式的轨迹
+        pose2 << pose_stamped.header.stamp << " "
+              << pose_stamped.pose.position.x << " "
+              << pose_stamped.pose.position.y << " "
+              << pose_stamped.pose.position.z << " "
+              << pose_stamped.pose.orientation.x << " "
+              << pose_stamped.pose.orientation.y << " "
+              << pose_stamped.pose.orientation.z << " "
+              << pose_stamped.pose.orientation.w << std::endl;
 
-        int npos_1 = lio_sam_path.find_last_of("/");
-        string path = lio_sam_path.substr(0,npos_1);
-        int npos_2 = path.find_last_of("/");
-        std::string src_path = path.substr(0,npos_2);
-        std::ofstream pose1(lio_sam_path + "/kitti_lio_sam_pose.txt");
-        pose1.setf(std::ios::scientific, std::ios::floatfield);
-        std::ofstream pose2(lio_sam_path + "/tum_lio_sam_pose.txt");
-        pose2.setf(std::ios::scientific, std::ios::floatfield);
-        for(auto ite = globalPath.poses.begin();ite!=globalPath.poses.end();ite++)
-        {    
-            geometry_msgs::PoseStamped pose_stamped = *ite;
-            Eigen::Quaterniond q_tmp;
-            q_tmp.x() = pose_stamped.pose.orientation.x;
-            q_tmp.y() = pose_stamped.pose.orientation.y;
-            q_tmp.z() = pose_stamped.pose.orientation.z;
-            q_tmp.w() = pose_stamped.pose.orientation.w;
-            Eigen::Matrix3d R_tmp;
-            R_tmp = q_tmp.normalized().toRotationMatrix();  
-            Eigen::Matrix<double, 4, 4> kitti_pose;
-            kitti_pose.topLeftCorner(3,3) = R_tmp;
-            kitti_pose(0,3) = pose_stamped.pose.position.x;
-            kitti_pose(1,3) = pose_stamped.pose.position.y;
-            kitti_pose(2,3) = pose_stamped.pose.position.z;
-
-            // Eigen::Matrix3d tmp;
-            // tmp << 0, -1, 0, 1, 0, 0, 0, 0, 1;
-
-            // kitti_pose.block<3,1>(0,3) = tmp * kitti_pose.block<3,1>(0,3);
-
-            pose1 << kitti_pose(0,0) << " " << kitti_pose(0,1) << " " << kitti_pose(0,2) << " " << kitti_pose(0,3) << " "
-            << kitti_pose(1,0) << " " << kitti_pose(1,1) << " " << kitti_pose(1,2) << " " << kitti_pose(1,3) << " "
-            << kitti_pose(2,0) << " " << kitti_pose(2,1) << " " << kitti_pose(2,2) << " " << kitti_pose(2,3) << std::endl;
-            pose2 << pose_stamped.header.stamp << " " <<  pose_stamped.pose.position.x << " " <<  pose_stamped.pose.position.y << " " <<  pose_stamped.pose.position.z << " "
-            << pose_stamped.pose.orientation.x << " " << pose_stamped.pose.orientation.y << " " << pose_stamped.pose.orientation.z << " " << pose_stamped.pose.orientation.w <<std::endl;
-        }
-        pose1.close();
-        pose2.close();
+        // kitti格式的轨迹
+        Eigen::Quaterniond q_tmp;
+        q_tmp.x() = pose_stamped.pose.orientation.x;
+        q_tmp.y() = pose_stamped.pose.orientation.y;
+        q_tmp.z() = pose_stamped.pose.orientation.z;
+        q_tmp.w() = pose_stamped.pose.orientation.w;
+        Eigen::Matrix3d R_tmp;
+        R_tmp = q_tmp.normalized().toRotationMatrix();
+        Eigen::Matrix<double, 4, 4> kitti_pose;
+        kitti_pose.topLeftCorner(3, 3) = R_tmp;
+        kitti_pose(0, 3) = pose_stamped.pose.position.x;
+        kitti_pose(1, 3) = pose_stamped.pose.position.y;
+        kitti_pose(2, 3) = pose_stamped.pose.position.z;
+        pose1 << kitti_pose(0, 0) << " " << kitti_pose(0, 1) << " "
+              << kitti_pose(0, 2) << " " << kitti_pose(0, 3) << " "
+              << kitti_pose(1, 0) << " " << kitti_pose(1, 1) << " "
+              << kitti_pose(1, 2) << " " << kitti_pose(1, 3) << " "
+              << kitti_pose(2, 0) << " " << kitti_pose(2, 1) << " "
+              << kitti_pose(2, 2) << " " << kitti_pose(2, 3) << std::endl;
+      }
+      pose1.close();
+      pose2.close();
     }
 
     void publishOdometry()
