@@ -68,48 +68,6 @@ Kaist数据集的使用也可以通过工具将数据转成bag从而进行使用
 
 ![lio-sam-result](src/doc/img/lio-sam-result.png)
 
-## 建图精度评估 evo(kitti/tum)
-
-#### 第一步 将kaist的真值转成evo能够读取的格式
-
-这一步需要安装依赖项
-`pip3 install numpy scipy`
-已经填写在 install_dependence.sh 文件中。
-
-cd src/kaist_tool/kaist2bag/scripts/
-python3 kaist2evo.py -p [urban_path:数据包文件夹的地址] -o [output_path:default=urban_path]
-
-```
-evo_traj kitti kitti_vrs_gps.txt kitti_lio_sam_pose.txt --ref=kitti_ground_truth.txt -p --plot_mode xy
-```
-
-
-
-启用gps约束，开始阶段关闭激光里程计约束，使用轮式里程计约束
-![](src/doc/img/1.png)
-
-
-```
-roslaunch lio_sam run.launch 
-
-evo_traj kitti kitti_ground_truth.txt kitti_lio_sam_pose.txt kitti_vrs_gps.txt -p --plot_mode xy
-```
-
-```
-cd src/data
-evo_traj tum tum_lio_sam_pose.txt --ref=tum_ground_truth.txt -a -p
-```
-
-
-
-### 执行评估
-* 执行评估前需要先完成基于LIO-SAM的建图，建图完成后会自动生成kitti_lio_sam_pose.txt，tum_lio_sam_pose.txt，拷贝到output_path
-```
-evo_traj tum tum_lio_sam_pose.txt --ref=tum_ground_truth.txt -a -p
-evo_traj kitti kitti_vrs_gps.txt kitti_lio_sam_pose.txt --ref=kitti_ground_truth.txt -p
-```
-
-
 ### 代码改动
 - 将左右点云转换到IMU系下并合并点云，配置文件中添加Lidar到IMU的外参
 - 替换原始EKF节点，增加原始gps数据转Odometry节点，发布因子图需要的gps数据类型
@@ -129,6 +87,43 @@ evo_traj kitti kitti_vrs_gps.txt kitti_lio_sam_pose.txt --ref=kitti_ground_truth
   # WheelOdom Settings
   useWheelOdom: true
 ```
+
+## 建图精度评估 evo(kitti/tum)
+
+### 第一步 将kaist的真值转成evo能够读取的格式
+
+这一步需要安装依赖项
+`pip3 install numpy scipy`
+已经填写在 install_dependence.sh 文件中。
+
+执行步骤为
+```
+./src/scripts/kaist2evo.py -p /media/trunk/Trunk/0-LX/Kaist/Urban08
+```
+-p 后边接的是数据集的文件夹，之后可以加 -o 加输出轨迹文件的地址。
+
+执行之后会在Urban08文件夹下生成2个txt文件，分别是 tum_ground_truth.txt 与 tum_vrs_gps.txt。
+
+- tum_ground_truth.txt 是将 global_pose.csv 转成的tum格式的轨迹文件
+- tum_vrs_gps.txt 是将 sensor_data/vrs_gps.csv 转成的tum格式的轨迹文件
+
+当然，这个我已经转好了，放在了 src/doc/ground_truth 文件夹下，不再需要自己转了。
+
+#### 参考文章
+[KAIST数据集参数](https://blog.csdn.net/Iqun_LAN/article/details/106445884)
+
+### 第二步 输出 lio-sam 的轨迹文件
+
+`roslaunch lio_sam run.launch ` 执行完建图之后，会在 src/doc/mapping_results 文件夹下生成轨迹文件
+
+
+### 第三步 执行评估
+
+然后将 src/doc/ground_truth/tum_ground_truth.txt 与 src/doc/mapping_results/tum_lio_sam_pose.txt 这两个文件，分别填在 src/scripts/evo.sh 的 txt1 与 txt2 中
+
+在执行 `src/scripts/evo.sh` 即可绘制轨迹图，ape图，rpe图。
+
+![traj](src/doc/img/traj.png)
 
 ## 基于点面匹配的激光里程计
 
