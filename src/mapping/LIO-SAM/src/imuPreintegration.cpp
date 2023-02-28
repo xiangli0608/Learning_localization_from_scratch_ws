@@ -295,8 +295,12 @@ public:
             gtsam::PriorFactor<gtsam::Vector3> priorVel(V(0), prevVel_, priorVelNoise);
             graphFactors.add(priorVel);
             // initial bias
-            prevBias_ = gtsam::imuBias::ConstantBias();
-            gtsam::PriorFactor<gtsam::imuBias::ConstantBias> priorBias(B(0), prevBias_, priorBiasNoise);
+            // TODO lx: 写死了Urban08.bag中的IMU的零偏，之后记得参数化
+            prevBias_ = gtsam::imuBias::ConstantBias(
+                gtsam::Vector3(-0.1, 0.15, 0),
+                gtsam::Vector3(-0.003, -0.0015, -0.0015));
+            gtsam::PriorFactor<gtsam::imuBias::ConstantBias> priorBias(
+                B(0), prevBias_, priorBiasNoise);
             graphFactors.add(priorBias);
             // add values
             graphValues.insert(X(0), prevPose_);

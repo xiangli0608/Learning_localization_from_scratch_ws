@@ -1,11 +1,9 @@
 <launch>
 
-    <arg name="project" default="lio_sam"/>
+    <arg name="bag_filename" default="/home/trunk/0-ws/Learning_localization_from_scratch_ws/urban08.bag"/>
 
     <param name="use_sim_time" value="true" />
-
-    <arg name="bag_filename" default="/home/touchair/kaist_urban_dataset/urban08/bag/urban08.bag"/>
-
+    
     <!-- Parameters -->
     <rosparam file="$(find lio_sam)/config/params.yaml" command="load" />
 

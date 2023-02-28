@@ -5,13 +5,13 @@
     <param name="use_sim_time" value="true" />
 
     <!-- bag的地址与名称 -->
-    <arg name="bag_filename" default="/home/touchair/kaist_urban_dataset/urban08/bag/kaist_16_ring.bag"/>
+    <arg name="bag_filename" default="/home/trunk/0-ws/Learning_localization_from_scratch_ws/urban08.bag"/>
 
     <!-- 使用bag的时间戳 -->
 
     <!-- 启动节点 -->
     <node name="odom_imu_node" pkg="odom_imu_node" type="odom_imu_node_odom_imu_node" output="screen" >
-         <rosparam file="$(find odom_imu_node)/config/odom_imu.yaml" command="load"/>
+         <!-- <rosparam file="$(find odom_imu_node)/config/odom_imu.yaml" command="load"/> -->
     </node>
 
 

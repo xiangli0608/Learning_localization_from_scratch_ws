@@ -1,10 +1,16 @@
 build/
 devel/
+
 *~
 src/CMakeLists.txt
 .catkin_workspace
-src/lidar_location/slam_data/*
+
 .vscode
 */.vscode
+
+*.bag
+
 data
 src/data/*
+src/lidar_location/slam_data/*
+map

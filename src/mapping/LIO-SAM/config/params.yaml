@@ -17,7 +17,7 @@ lio_sam:
   mapFrame: "map"
 
   # GPS Settings
-  useGPS: true
+  useGPS: false
   useImuHeadingInitialization: false           # if using GPS data, set to "true"
   useGpsElevation: false                      # if GPS elevation is bad, set to "false"
   gpsCovThreshold: 1.0                        # m^2, threshold for using GPS data
